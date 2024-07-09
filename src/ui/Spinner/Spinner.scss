@@ -1,0 +1,120 @@
+.Spinner {
+  $size: 50px;
+  $dotSize: 5px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  .lds-roller,
+  .lds-roller div,
+  .lds-roller div:after {
+    box-sizing: border-box;
+  }
+
+  .lds-roller {
+    display: inline-block;
+    position: relative;
+    width: $size;
+    height: $size;
+  }
+
+  .lds-roller div {
+    animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    transform-origin: calc($size / 2) calc($size / 2);
+  }
+
+  .lds-roller div:after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    width: $dotSize;
+    height: $dotSize;
+    border-radius: 50%;
+    background: currentColor;
+    margin: calc($dotSize / -2) 0 0 calc($dotSize / -2);
+  }
+
+  .lds-roller div:nth-child(1) {
+    animation-delay: -0.036s;
+  }
+
+  .lds-roller div:nth-child(1):after {
+    top: calc($size * 0.78392);
+    left: calc($size * 0.78392);
+  }
+
+  .lds-roller div:nth-child(2) {
+    animation-delay: -0.072s;
+  }
+
+  .lds-roller div:nth-child(2):after {
+    top: calc($size * 0.84641);
+    left: calc($size * 0.7);
+  }
+
+  .lds-roller div:nth-child(3) {
+    animation-delay: -0.108s;
+  }
+
+  .lds-roller div:nth-child(3):after {
+    top: calc($size * 0.88637);
+    left: calc($size * 0.60353);
+  }
+
+  .lds-roller div:nth-child(4) {
+    animation-delay: -0.144s;
+  }
+
+  .lds-roller div:nth-child(4):after {
+    top: calc($size * 0.9);
+    left: calc($size * 0.5);
+  }
+
+  .lds-roller div:nth-child(5) {
+    animation-delay: -0.18s;
+  }
+
+  .lds-roller div:nth-child(5):after {
+    top: calc($size * 0.88637);
+    left: calc($size * 0.39522);
+  }
+
+  .lds-roller div:nth-child(6) {
+    animation-delay: -0.216s;
+  }
+
+  .lds-roller div:nth-child(6):after {
+    top: calc($size * 0.84641);
+    left: calc($size * 0.3);
+  }
+
+  .lds-roller div:nth-child(7) {
+    animation-delay: -0.252s;
+  }
+
+  .lds-roller div:nth-child(7):after {
+    top: calc($size * 0.78284);
+    left: calc($size * 0.21716);
+  }
+
+  .lds-roller div:nth-child(8) {
+    animation-delay: -0.288s;
+  }
+
+  .lds-roller div:nth-child(8):after {
+    top: calc($size * 0.7);
+    left: calc($size * 0.15359);
+  }
+
+  @keyframes lds-roller {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
