@@ -8,9 +8,9 @@ export async function POST(req: NextRequest) {
   const client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY || '' });
 
   try {
-    const text = await queryPineconeStoreAndLLM(client, indexName, body.question);
+    const text = await queryPineconeStoreAndLLM(client, indexName, body.question, body.namespace);
     return NextResponse.json({ data: text });
   } catch (e) {
-    return NextResponse.json(`Error querying Pinecone index: ${e}`, { status: 500 });
+    return NextResponse.json({ error: `Error querying Pinecone index: ${e}` }, { status: 500 });
   }
 }

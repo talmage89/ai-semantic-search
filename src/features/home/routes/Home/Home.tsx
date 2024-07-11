@@ -1,97 +1,119 @@
 'use client';
 import * as React from 'react';
+import useSWR from 'swr';
+import { Chat, ErrorMessage, Message, Sidebar } from '../..';
 import './Home.scss';
-import { Sidebar } from '../../components';
+
+const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json());
 
 export const Home = () => {
-  const [question, setQuestion] = React.useState<string>('');
-  const [docs, setDocs] = React.useState<File[]>([]);
   const [indexInitialized, setIndexInitialized] = React.useState(false);
-  const [updatingIndex, setUpdatingIndex] = React.useState(false);
+  const [uploadingFiles, setUploadingFiles] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+  const [sendingMessage, setSendingMessage] = React.useState(false);
 
-  const directoryUploadRef = React.useRef<HTMLInputElement>(null);
-  const fileUploadRef = React.useRef<HTMLInputElement>(null);
+  const [conversation, setConversation] = React.useState<(Message | ErrorMessage)[]>([]);
+  const [namespace, setNamespace] = React.useState('');
+
+  const { data, isLoading, error, mutate } = useSWR(indexInitialized ? '/api/stats' : null, (url) =>
+    fetcher(url, { method: 'POST' })
+  );
 
   React.useEffect(() => {
-    initialize()
+    fetch('/api/initialize', { method: 'POST' })
       .catch(console.error)
       .finally(() => setIndexInitialized(true));
   }, []);
 
-  async function initialize() {
-    return fetch('/api/initialize', { method: 'POST' });
-  }
-
-  async function updateIndex(files: File[]) {
-    const formData = new FormData();
-    files.forEach((file) => formData.append('documents', file));
-    return fetch('/api/setup', { method: 'POST', body: formData });
-  }
-
-  function processFiles() {
-    setUpdatingIndex(true);
-    updateIndex(docs)
-      .catch(console.error)
-      .finally(() => setUpdatingIndex(false));
-  }
-
-  function renderIndexStatus() {
-    if (!indexInitialized) {
-      return <div className="IndexStatus">Initializing index...</div>;
+  React.useEffect(() => {
+    const namespaces = data?.data.index.namespaces;
+    if (namespaces && !namespaces?.[namespace]) {
+      setNamespace(Object.keys(namespaces)[0] || '');
     }
+  }, [data, namespace]);
 
-    return <div className="IndexStatus"></div>;
+  function handleUploadFiles(docs: File[], namespace?: string) {
+    const formData = new FormData();
+    namespace && formData.append('namespace', namespace);
+    docs.forEach((file) => formData.append('documents', file));
+    setUploadingFiles(true);
+    fetch('/api/upload', { method: 'POST', body: formData })
+      .then(async () => await handleAwaitIndexUpdate(namespace))
+      .catch(console.error)
+      .finally(() => setUploadingFiles(false));
+  }
+
+  function handleAwaitIndexUpdate(namespace = '', shouldIncludeNamespace = true) {
+    return new Promise<void>((resolve, reject) => {
+      let count = 0;
+      const countLimit = 10;
+      const interval = setInterval(() => {
+        mutate().then((res) => {
+          const index = res.data?.index;
+          const namespaceIncluded = index?.namespaces?.[namespace || ''];
+          if (
+            index?.namespaces &&
+            ((shouldIncludeNamespace && namespaceIncluded) || (!shouldIncludeNamespace && !namespaceIncluded))
+          ) {
+            clearInterval(interval);
+            resolve();
+          } else {
+            count++;
+            if (count >= countLimit) {
+              clearInterval(interval);
+              reject('Index not updated');
+            }
+          }
+        });
+      }, 1000);
+    });
+  }
+
+  const addMessage = (message: Message | ErrorMessage) => setConversation((prev) => [...prev, message]);
+
+  function handleQuestion(question: string) {
+    // setConversation((prev) => [...prev, { text: question, timestamp: new Date(), direction: 'outgoing' } as Message]);
+    addMessage({ text: question, timestamp: new Date(), direction: 'outgoing' });
+    setSendingMessage(true);
+    fetch(`/api/query`, { method: 'post', body: JSON.stringify({ question, namespace }) })
+      .then((res) => res.json())
+      .then((json) => {
+        json.error
+          ? addMessage({ error: new Error(json.error), timestamp: new Date() })
+          : addMessage({ text: json.data, timestamp: new Date(), direction: 'incoming' });
+      })
+      .catch((err) => addMessage({ error: new Error(err), timestamp: new Date() }))
+      .finally(() => setSendingMessage(false));
+  }
+
+  function handleDeleteNamespace(namespace: string) {
+    setDeleting(true);
+    fetch('/api/delete', { method: 'POST', body: JSON.stringify({ namespace }) })
+      .then(() => handleAwaitIndexUpdate(namespace, false))
+      .catch(console.error)
+      .finally(() => setDeleting(false));
   }
 
   return (
     <div className="Home">
-      <Sidebar initialized={indexInitialized} loading={updatingIndex} data={null} />
-      <div className="Home__text">
-        <h1>Welcome to the Semantic Search App</h1>
-        <p>Query uploaded documents via a semantic LLM.</p>
-      </div>
-      <div className="Home__interactive">
-        <div className="Home__question__container">
-          <input
-            className="Home__question__input"
-            type="text"
-            placeholder="Enter your question here"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-          <button className="Home__question__button">Submit</button>
+      <Sidebar
+        initialized={indexInitialized}
+        loading={isLoading || deleting}
+        uploading={uploadingFiles}
+        data={error || data?.data.index}
+        namespace={namespace}
+        onNamespaceChange={(namespace) => setNamespace(namespace)}
+        onDeleteNamespace={(namespace) => handleDeleteNamespace(namespace)}
+        onUpload={(docs, namespace) => handleUploadFiles(docs, namespace)}
+      />
+      <div className="Home__main">
+        <div className="Home__main__header">
+          <div className="flex flex-column">
+            <h2 className="text-color-900">Semantic Search</h2>
+            {/* <div className="text-size-xs text-weight-bold text-color-500">Version {process.env.npm_package_version}</div> */}
+          </div>
         </div>
-        <input
-          type="file"
-          ref={directoryUploadRef}
-          webkitdirectory="true"
-          onChange={(e) => {
-            e.target.files && setDocs(Array.from(e.target.files));
-            e.target.value = '';
-          }}
-        />
-        <button className="Home__fileUpload" onClick={() => directoryUploadRef.current?.click()}>
-          Upload a folder
-        </button>
-        <input
-          type="file"
-          ref={fileUploadRef}
-          multiple
-          onChange={(e) => {
-            e.target.files && setDocs(Array.from(e.target.files));
-            e.target.value = '';
-          }}
-        />
-        <button className="Home__fileUpload" onClick={() => fileUploadRef.current?.click()}>
-          Upload files
-        </button>
-        <button onClick={() => processFiles()} disabled={!docs.length}>
-          Process files
-        </button>
-      </div>
-      <div className="Home__output">
-        <h2>Output</h2>
-        <p>Output will appear here</p>
+        <Chat onSubmit={(message) => handleQuestion(message)} conversation={conversation} />
       </div>
     </div>
   );

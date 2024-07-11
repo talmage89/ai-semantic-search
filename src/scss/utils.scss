@@ -1,0 +1,151 @@
+@import './variables.scss';
+
+$text-sizes: (
+  'xs': 0.75rem,
+  's': 0.875rem,
+  'm': 1rem,
+  'l': 1.25rem,
+  'xl': 1.5rem,
+  'xxl': 2rem,
+);
+
+$text-weights: (
+  'light': 300,
+  'normal': 400,
+  'medium': 500,
+  'semi-bold': 600,
+  'bold': 700,
+);
+
+$text-colors: (
+  '100': $gray-100,
+  '200': $gray-200,
+  '300': $gray-300,
+  '400': $gray-400,
+  '500': $gray-500,
+  '600': $gray-600,
+  '700': $gray-700,
+  '800': $gray-800,
+  '900': $gray-900,
+);
+
+.text {
+  @each $name, $value in $text-sizes {
+    &-size-#{$name} {
+      font-size: $value;
+    }
+  }
+  @each $name, $value in $text-weights {
+    &-weight-#{$name} {
+      font-weight: $value;
+    }
+  }
+  @each $name, $value in $text-colors {
+    &-color-#{$name} {
+      color: $value !important;
+    }
+  }
+}
+
+.flex {
+  display: flex;
+
+  &-row {
+    flex-direction: row;
+  }
+
+  &-column {
+    flex-direction: column;
+  }
+}
+
+.align {
+  &-center {
+    align-items: center;
+  }
+  &-start {
+    align-items: flex-start;
+  }
+  &-end {
+    align-items: flex-end;
+  }
+}
+
+.justify {
+  &-center {
+    justify-content: center;
+  }
+  &-start {
+    justify-content: flex-start;
+  }
+  &-end {
+    justify-content: flex-end;
+  }
+  &-between {
+    justify-content: space-between;
+  }
+  &-around {
+    justify-content: space-around;
+  }
+  &-evenly {
+    justify-content: space-evenly;
+  }
+}
+
+@for $i from 1 through 12 {
+  .gap-#{$i} {
+    gap: $i * 0.25rem;
+  }
+}
+
+@for $i from 0 through 12 {
+  .pt-#{$i} {
+    padding-top: $i * 0.25rem;
+  }
+  .pb-#{$i} {
+    padding-bottom: $i * 0.25rem;
+  }
+  .pl-#{$i} {
+    padding-left: $i * 0.25rem;
+  }
+  .pr-#{$i} {
+    padding-right: $i * 0.25rem;
+  }
+  .px-#{$i} {
+    padding-left: $i * 0.25rem;
+    padding-right: $i * 0.25rem;
+  }
+  .py-#{$i} {
+    padding-top: $i * 0.25rem;
+    padding-bottom: $i * 0.25rem;
+  }
+  .p-#{$i} {
+    padding: $i * 0.25rem;
+  }
+}
+
+@for $i from 0 through 12 {
+  .mt-#{$i} {
+    margin-top: $i * 0.25rem;
+  }
+  .mb-#{$i} {
+    margin-bottom: $i * 0.25rem;
+  }
+  .ml-#{$i} {
+    margin-left: $i * 0.25rem;
+  }
+  .mr-#{$i} {
+    margin-right: $i * 0.25rem;
+  }
+  .mx-#{$i} {
+    margin-left: $i * 0.25rem;
+    margin-right: $i * 0.25rem;
+  }
+  .my-#{$i} {
+    margin-top: $i * 0.25rem;
+    margin-bottom: $i * 0.25rem;
+  }
+  .m-#{$i} {
+    margin: $i * 0.25rem;
+  }
+}

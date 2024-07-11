@@ -1,0 +1,99 @@
+@import '~/scss/variables.scss';
+@import '~/scss/mixins.scss';
+
+.IconButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: $gray-200;
+  }
+
+  &:active {
+    background-color: $gray-300;
+  }
+
+  &__icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  &--inverse {
+    background-color: $gray-800;
+
+    .IconButton__icon {
+      path {
+        fill: $white;
+      }
+    }
+
+    &:hover {
+      background-color: $gray-700;
+    }
+
+    &:active {
+      background-color: $gray-700;
+    }
+  }
+
+  &--danger {
+    background-color: $red-100;
+
+    .IconButton__icon {
+      path {
+        fill: $red-900;
+      }
+    }
+
+    &:hover {
+      background-color: $red-200;
+    }
+
+    &:active {
+      background-color: $red-300;
+    }
+  }
+
+  &--info {
+    background-color: $blue-100;
+
+    .IconButton__icon {
+      path {
+        fill: $blue-900;
+      }
+    }
+
+    &:hover {
+      background-color: $blue-200;
+    }
+
+    &:active {
+      background-color: $blue-300;
+    }
+  }
+
+  &--success {
+    background-color: $green-100;
+
+    .IconButton__icon {
+      path {
+        fill: $green-900;
+      }
+    }
+
+    &:hover {
+      background-color: $green-200;
+    }
+
+    &:active {
+      background-color: $green-300;
+    }
+  }
+}

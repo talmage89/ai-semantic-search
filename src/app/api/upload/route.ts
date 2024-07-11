@@ -24,9 +24,9 @@ export async function POST(req: NextRequest) {
   ).flat();
 
   try {
-    await updatePineconeIndex(client, indexName, processedDocs);
+    await updatePineconeIndex(client, indexName, processedDocs, (formData.get('namespace') as string) || undefined);
     return NextResponse.json({ data: 'Index updated' });
   } catch (e) {
-    return NextResponse.json(`Error creating or updating Pinecone index: ${e}`, { status: 500 });
+    return NextResponse.json({ error: `Error updating Pinecone index: ${e}` }, { status: 500 });
   }
 }

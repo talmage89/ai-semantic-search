@@ -1,6 +1,26 @@
+@import '~/scss/mixins.scss';
+@import '~/scss/utils.scss';
+@import '~/scss/variables.scss';
+@import '~/scss/keyframes.scss';
+
+* {
+  box-sizing: border-box;
+  @include sans;
+}
+
 .html,
 body {
   margin: 0;
   padding: 0;
   background-color: #ffffff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
 }

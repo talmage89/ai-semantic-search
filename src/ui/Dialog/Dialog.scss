@@ -1,0 +1,52 @@
+@import '~/scss/variables.scss';
+@import '~/scss/mixins.scss';
+
+.Dialog {
+  &__overlay {
+    animation: overlayShow 200ms;
+    background-color: rgba($gray-900, 0.7) !important;
+    position: fixed;
+    inset: 0;
+  }
+
+  &__content {
+    @include shadow-lg;
+    animation: contentShow 400ms;
+    background-color: white;
+    border-radius: 8px;
+    max-height: 85vh;
+    min-height: 3rem;
+    min-width: 16rem;
+    max-width: 90vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  &__close {
+    position: absolute !important;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}

@@ -1,0 +1,106 @@
+@import '~/scss/variables.scss';
+@import '~/scss/mixins.scss';
+
+.Chat {
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0 4rem;
+  max-width: 1100px;
+  overflow: hidden;
+
+  &__messages {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-bottom: 2rem;
+    max-height: 100%;
+    overflow-y: scroll;
+  }
+
+  &__message {
+    &__container {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+
+      &:has(.Chat__message--outgoing) {
+        justify-content: flex-end;
+      }
+
+      &:has(.Chat__message--incoming) {
+        margin-bottom: 1rem;
+      }
+    }
+
+    &__avatar {
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid $gray-400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__message {
+    border-radius: 1rem;
+    padding: 0.5rem 1rem;
+    word-wrap: break-word;
+
+    &--error {
+      background-color: $red-100;
+      color: $red-900;
+    }
+
+    &--incoming {
+      align-self: flex-start;
+      max-width: 100%;
+    }
+
+    &--outgoing {
+      align-self: flex-end;
+      background-color: $gray-200;
+      max-width: 70%;
+    }
+  }
+
+  &__input {
+    padding: 2rem 0 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & > span {
+      width: 100%;
+    }
+
+    .IconButton {
+      border: 1px solid $gray-800;
+
+      &:hover {
+        border: 1px solid $gray-700;
+      }
+    }
+
+    & input {
+      flex-grow: 1;
+      width: 100%;
+      padding: 0.5rem 1.25rem;
+      border: 2px solid $gray-200;
+      border-radius: 100px;
+      font-size: 14px;
+      transition: all 0.2s;
+
+      &:focus {
+        border-color: $blue-100;
+      }
+    }
+  }
+}
