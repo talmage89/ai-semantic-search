@@ -1,0 +1,53 @@
+@import '~/scss/variables.scss';
+@import '~/scss/mixins.scss';
+
+.AuthLogin {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+
+  &__form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  &__formGroup {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    & > label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-left: 0.5rem;
+      padding: 4px;
+      background-color: white;
+      position: absolute;
+      line-height: 0;
+      transform: translateY(-50%);
+    }
+
+    & > input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+  }
+
+  &__button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 4px;
+    @include semi-bold;
+  }
+}

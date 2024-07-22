@@ -45,7 +45,6 @@ export const updatePineconeIndex = async (
 ) => {
   const entireIndex = client.Index(indexName);
   const index = namespace ? entireIndex.namespace(namespace) : entireIndex;
-  let allVectors: PineconeRecord[] = [];
 
   const batchify = (array: PineconeRecord[], batchSize = 100): PineconeRecord[][] => {
     const chunks = [];
@@ -55,8 +54,9 @@ export const updatePineconeIndex = async (
     return chunks;
   };
 
-  await Promise.all(
-    unprocessedDocs.map(async (unprocessedDoc) => {
+  console.log('Processing documents...');
+  await Promise.allSettled(
+    unprocessedDocs.map(async (unprocessedDoc, index) => {
       const txtPath = unprocessedDoc.metadata.source;
       const text = unprocessedDoc.pageContent;
       const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000 });
@@ -64,23 +64,29 @@ export const updatePineconeIndex = async (
       const embeddingsArray = await new OpenAIEmbeddings().embedDocuments(
         chunks.map((chunk) => chunk.pageContent.replace(/\n/g, ' '))
       );
-      const vectors: PineconeRecord[] = chunks.map((chunk, idx) => {
-        return {
-          id: randomUUID(),
-          values: embeddingsArray[idx],
-          metadata: {
-            ...chunk.metadata,
-            loc: JSON.stringify(chunk.metadata.loc),
-            pageContent: chunk.pageContent,
-            txtPath,
-          },
-        };
-      });
-      allVectors = [...allVectors, ...vectors];
+      console.log('Processed', index + 1, 'of', unprocessedDocs.length, 'documents...');
+      return chunks.map(
+        (chunk, idx) =>
+          ({
+            id: randomUUID(),
+            values: embeddingsArray[idx],
+            metadata: {
+              ...chunk.metadata,
+              loc: JSON.stringify(chunk.metadata.loc),
+              pageContent: chunk.pageContent,
+              txtPath,
+            },
+          } as PineconeRecord)
+      );
     })
-  );
-  const batches = batchify(allVectors);
-  await Promise.all(batches.map((batch) => index.upsert(batch)));
+  ).then(async (promises) => {
+    const rejected = promises.filter((promise) => promise.status === 'rejected');
+    const fulfilledValues = promises.filter((promise) => promise.status !== 'rejected').map((promise) => promise.value);
+    const vectors = fulfilledValues.flat();
+    const batches = batchify(vectors);
+    console.log(vectors.length, 'vectors,', batches.length, 'batches uploading...');
+    await Promise.allSettled(batches.map((batch) => index.upsert(batch)));
+  });
 };
 
 export const queryPineconeStoreAndLLM = async (
@@ -103,11 +109,11 @@ export const queryPineconeStoreAndLLM = async (
 
   if (queryResponse.matches.length) {
     const concattedPageContent = queryResponse.matches.map((match) => match.metadata?.pageContent).join(' ');
-    console.log(concattedPageContent);
     const response = await chain.invoke({
       input_documents: [new Document({ pageContent: concattedPageContent })],
       question,
     });
+    console.log(response);
     return response.text;
   } else {
     throw new Error('No matches found');

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import useSWR from 'swr';
-import { Chat, ErrorMessage, Message, Sidebar } from '../..';
+import { Chat, ErrorMessage, Message, QuestionInput, Sidebar } from '../..';
 import './Home.scss';
 
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json());
@@ -80,7 +80,7 @@ export const Home = () => {
       .then((json) => {
         json.error
           ? addMessage({ error: new Error(json.error), timestamp: new Date() })
-          : addMessage({ text: json.data, timestamp: new Date(), direction: 'incoming' });
+          : addMessage({ text: json.data.trim(), timestamp: new Date(), direction: 'incoming' });
       })
       .catch((err) => addMessage({ error: new Error(err), timestamp: new Date() }))
       .finally(() => setSendingMessage(false));
@@ -113,7 +113,14 @@ export const Home = () => {
             {/* <div className="text-size-xs text-weight-bold text-color-500">Version {process.env.npm_package_version}</div> */}
           </div>
         </div>
-        <Chat onSubmit={(message) => handleQuestion(message)} conversation={conversation} />
+        <div className="Home__main__scroll">
+          <div className="Home__main__container">
+            <Chat conversation={conversation} />
+          </div>
+        </div>
+        <div className="Home__main__container">
+          <QuestionInput onSubmit={(message) => handleQuestion(message)} />
+        </div>
       </div>
     </div>
   );

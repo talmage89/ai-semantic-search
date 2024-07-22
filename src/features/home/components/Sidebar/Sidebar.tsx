@@ -32,16 +32,20 @@ export const Sidebar = (props: SidebarProps) => {
 
   function renderUninitialized() {
     return (
-      <div className="Sidebar__uninitialized">
-        <Spinner label="Initializing..." />
+      <div className="Sidebar__content">
+        <div className="Sidebar__uninitialized">
+          <Spinner label="Initializing..." />
+        </div>
       </div>
     );
   }
 
   function renderLoading() {
     return (
-      <div className="Sidebar__loading">
-        <Spinner label="Loading namespaces..." />
+      <div className="Sidebar__content">
+        <div className="Sidebar__loading">
+          <Spinner label="Loading namespaces..." />
+        </div>
       </div>
     );
   }
@@ -81,8 +85,8 @@ export const Sidebar = (props: SidebarProps) => {
       );
 
     return (
-      <div className="Sidebar__stats">
-        <div className="flex align-center justify-between mb-2">
+      <>
+        <div className="flex align-center justify-between mb-2 px-6">
           <p className="text-size-l text-weight-bold">Namespaces</p>
           {!editingNamespaces ? (
             <IconButton icon={<MagicWandIcon />} onClick={() => setEditingNamespaces(true)} />
@@ -90,23 +94,29 @@ export const Sidebar = (props: SidebarProps) => {
             <IconButton icon={<CheckIcon />} color="success" onClick={() => setEditingNamespaces(false)} />
           )}
         </div>
-        <div className="Sidebar__stats__namespaces">
-          {stats.namespaces && Object.entries(stats.namespaces).length
-            ? Object.entries(stats.namespaces)
-                .sort(([ns]) => (ns === '' ? -1 : 1))
-                .map(([namespace, count]) => renderNamespace(namespace, count.recordCount))
-            : renderNamespace('', 0)}
+        <div className="Sidebar__content">
+          <div className="Sidebar__stats">
+            <div className="Sidebar__stats__namespaces px-6">
+              {stats.namespaces && Object.entries(stats.namespaces).length
+                ? Object.entries(stats.namespaces)
+                    .sort(([ns]) => (ns === '' ? -1 : 1))
+                    .map(([namespace, count]) => renderNamespace(namespace, count.recordCount))
+                : renderNamespace('', 0)}
+            </div>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   function renderConnectionError() {
     return (
-      <div className="Sidebar__error">
-        <div className="Sidebar__error__content">
-          <ExclamationTriangleIcon className="Sidebar__error__icon" />
-          <p className="text-size-m text-color-900">An error has occured.</p>
+      <div className="Sidebar__content">
+        <div className="Sidebar__error">
+          <div className="Sidebar__error__content">
+            <ExclamationTriangleIcon className="Sidebar__error__icon" />
+            <p className="text-size-m text-color-900">An error has occured.</p>
+          </div>
         </div>
       </div>
     );
@@ -114,7 +124,7 @@ export const Sidebar = (props: SidebarProps) => {
 
   return (
     <div className="Sidebar">
-      <div className="flex flex-column">
+      <div className="flex flex-column p-6">
         <div className="flex align-center justify-between">
           <h2>Index</h2>
           <Tooltip icon={<QuestionMarkCircledIcon />}>
@@ -128,7 +138,7 @@ export const Sidebar = (props: SidebarProps) => {
           <p className="text-size-xs text-weight-bold text-color-500">{props.data.totalRecordCount} total records</p>
         )}
       </div>
-      <div className="Sidebar__content">
+      <>
         {!props.initialized
           ? renderUninitialized()
           : props.loading
@@ -136,8 +146,8 @@ export const Sidebar = (props: SidebarProps) => {
           : props.data
           ? renderIndexStats(props.data)
           : renderConnectionError()}
-      </div>
-      <div className="Sidebar__buttons">
+      </>
+      <div className="Sidebar__buttons p-6 pb-8">
         <span className="flex align-center justify-between">
           <p className="text-size-s text-weight-bold">Select</p>
           <span className="flex align-center gap-4">

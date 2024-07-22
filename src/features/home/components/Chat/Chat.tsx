@@ -1,24 +1,14 @@
 'use client';
 import * as React from 'react';
-import { FileTextIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
-import { IconButton } from '~/ui';
+import { FileTextIcon } from '@radix-ui/react-icons';
 import { ErrorMessage, Message } from '../..';
 import './Chat.scss';
 
 type ChatProps = {
-  onSubmit: (message: string) => void;
   conversation: (Message | ErrorMessage)[];
 };
 
 export const Chat = (props: ChatProps) => {
-  const [question, setQuestion] = React.useState('');
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    props.onSubmit(question);
-    setQuestion('');
-  }
-
   function isErrorMessage(msg: Message | ErrorMessage): msg is ErrorMessage {
     return (msg as ErrorMessage).error !== undefined;
   }
@@ -52,17 +42,6 @@ export const Chat = (props: ChatProps) => {
           </div>
         ))}
       </div>
-      <form className="Chat__input" onSubmit={handleSubmit}>
-        <span className="flex align-center gap-2">
-          <input
-            type="text"
-            placeholder="Ask a question"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
-          <IconButton type="submit" icon={<PaperPlaneIcon />} color="inverse" />
-        </span>
-      </form>
     </div>
   );
 };
