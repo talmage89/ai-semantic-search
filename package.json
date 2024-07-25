@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "dev-email": "email dev"
+    "start": "next start"
   },
   "dependencies": {
     "@langchain/community": "^0.2.17",
