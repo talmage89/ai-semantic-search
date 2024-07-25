@@ -24,20 +24,19 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: root@root.com
       PGADMIN_DEFAULT_PASSWORD: root
-
-  app:
-    container_name: next_app
-    build: .
-    restart: always
-    depends_on:
-      - db
-    ports:
-      - 3000:3000
-    volumes:
-      - .:/app
-      - ./node_modules:/app/node_modules
-    env_file:
-      - .env.local
+  # app:
+  #   container_name: next_app
+  #   build: .
+  #   restart: always
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   env_file:
+  #     - .env.local
 
 volumes:
   pg_data:

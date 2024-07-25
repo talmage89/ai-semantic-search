@@ -1,0 +1,11 @@
+.AuthVerify {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 700px;
+
+  & p {
+    text-align: center;
+  }
+}

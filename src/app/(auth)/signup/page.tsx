@@ -2,8 +2,10 @@
 
 import * as React from 'react';
 import { createUser } from '~/actions/auth-actions';
-import './page.scss';
 import { sendVerificationEmail } from '~/actions/email-actions';
+import { ActionResponse, ActionResponseStatus } from '~/actions/class';
+import './page.scss';
+import { User } from '@prisma/client';
 
 type SignupForm = {
   email: string;
@@ -17,22 +19,32 @@ export default function Page() {
     password1: '',
     password2: '',
   });
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const formInvalid = () => {
+    return !form.email || !form.password1 || !form.password2;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (form.password1 !== form.password2) {
+      setError('Passwords do not match');
+      setForm((p) => ({ ...p, password1: '', password2: '' }));
       return;
     }
-
-    const user = await createUser(form.email, form.password1, form.password2);
-
-    if (!user) {
-      alert('Failed to create user');
-      return;
-    }
-
-    sendVerificationEmail(user.email, user.emailValidationToken);
+    setError(null);
+    setLoading(true);
+    createUser(form.email, form.password1, form.password2)
+      .then((str) => {
+        const res = ActionResponse.fromJSON<User>(str);
+        if (res.type === ActionResponseStatus.ERROR) {
+          setError(res.message);
+          setForm((p) => ({ ...p, password1: '', password2: '' }));
+          return;
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -46,7 +58,6 @@ export default function Page() {
               type="email"
               name="email"
               id="email"
-              required
               value={form.email}
               onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
             />
@@ -56,7 +67,6 @@ export default function Page() {
             <input
               type="password"
               id="password1"
-              required
               value={form.password1}
               onChange={(e) => setForm((p) => ({ ...p, password1: e.target.value }))}
             />
@@ -66,14 +76,14 @@ export default function Page() {
             <input
               type="password"
               id="password2"
-              required
               value={form.password2}
               onChange={(e) => setForm((p) => ({ ...p, password2: e.target.value }))}
             />
           </div>
         </div>
-        <button type="submit" className="AuthSignup__button">
-          Continue
+        {error && <div className="AuthSignup__error">{error}</div>}
+        <button type="submit" className="AuthSignup__button" disabled={loading || formInvalid()}>
+          {loading ? 'Submitting...' : 'Continue'}
         </button>
       </form>
     </div>

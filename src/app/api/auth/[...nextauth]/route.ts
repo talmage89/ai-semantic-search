@@ -1,35 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-import NextAuth, { type NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth';
+import { PrismaClient, User } from '@prisma/client';
+
 import CredentialsProvider from 'next-auth/providers/credentials';
-// import { compare } from 'bcrypt';
+import { omissions } from '~/actions/omissions';
+import { compare } from 'bcrypt';
 
-const prisma = new PrismaClient();
-
-export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: 'jwt',
-  },
-  providers: [
-    CredentialsProvider({
-      name: 'Sign in',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials, req) {
-        return {
-          id: '1',
-          name: 'Test User',
-          email: '',
-        };
-      },
-    }),
-  ],
-  callbacks: {},
-  pages: {
-    signIn: '/login',
-  },
-};
 
 const handler = NextAuth(authOptions);
 
