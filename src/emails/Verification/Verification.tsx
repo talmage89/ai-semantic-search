@@ -6,7 +6,7 @@ type VerificationProps = {
 };
 
 export const Verification = (props: VerificationProps) => {
-  const getUrl = () => `${process.env.URL}/auth/verify-email?token=${props.token}`;
+  const getUrl = () => `${process.env.URL}/verify?token=${props.token}`;
 
   return (
     <Html>

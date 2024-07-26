@@ -35,9 +35,13 @@ export class ActionResponse<T = any> {
     });
   }
 
-  static fromJSON<T>(string: any) {
+  static async fromJSON<T>(string: any) {
     const json = JSON.parse(string);
     const { type, message, data } = json;
-    return new ActionResponse<T>(type, message, data);
+    return new Promise<ActionResponse<T>>((resolve, reject) => {
+      type === ActionResponseStatus.SUCCESS
+        ? resolve(new ActionResponse<T>(type, message, data))
+        : reject(new ActionResponse<T>(type, message, data));
+    });
   }
 }

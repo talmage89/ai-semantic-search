@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import '~/global.scss';
-import Providers from './providers';
+import Providers from '~/lib/providers';
 
 export const metadata: Metadata = {
   title: 'Semantic Search',

@@ -1,11 +1,11 @@
 import { Home } from '~/features/home';
 import { LoginButton, LogoutButton, User } from './components';
-import { authOptions } from '~/app/api/auth/[...nextauth]/route';
-import NextAuth from 'next-auth';
+import { auth } from '~/auth';
 
 export default async function Page() {
   // return <Home />;
-  const session = NextAuth()
+
+  const  session = auth();
 
   return (
     <div>
