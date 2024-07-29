@@ -1,7 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
-import { Verification } from '~/emails';
+import { Verification } from '~/app/(emails)';
 import { ActionResponse } from '~/lib/classes';
 
 const resend = new Resend(process.env.RESEND_API_KEY);

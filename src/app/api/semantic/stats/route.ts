@@ -1,13 +1,9 @@
-import { Pinecone } from '@pinecone-database/pinecone';
 import { NextResponse } from 'next/server';
-import { indexName } from '~/config';
-import { getPineconeIndexStats } from '../utils';
+import { getPineconeIndexStats } from '~/lib/actions';
 
 export async function POST() {
-  const client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY || '' });
-
   try {
-    const index = await getPineconeIndexStats(client, indexName);
+    const index = await getPineconeIndexStats();
     const response = NextResponse.json({ data: { message: 'Index stats retrieved', index } });
     response.headers.set('Cache-Control', 'no-store');
     return response;

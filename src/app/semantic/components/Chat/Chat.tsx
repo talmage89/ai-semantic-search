@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { FileTextIcon } from '@radix-ui/react-icons';
-import { ErrorMessage, Message } from '../..';
+import { ErrorMessage, Message } from '../../types';
 import './Chat.scss';
 
 type ChatProps = {

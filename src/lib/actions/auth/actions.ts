@@ -4,10 +4,11 @@ import { PrismaClient, User } from '@prisma/client';
 import crypto from 'crypto';
 
 import { signIn, signOut } from '~/auth';
-import { ActionResponse, loginSchema, omissions } from '~/lib';
-import { sendVerificationEmail } from './email-actions';
+import { ActionResponse } from '~/lib/classes';
+import { loginSchema, defaultOmission } from '~/lib/types';
+import { sendVerificationEmail } from '../email/actions';
 
-const prisma = new PrismaClient(omissions);
+const prisma = new PrismaClient(defaultOmission);
 
 const createToken = () => {
   return new Promise<string>((resolve, reject) =>
@@ -26,7 +27,6 @@ export async function createUser(email: string, password1: string, password2: st
   }
   const validatedFields = loginSchema.safeParse({ email, password: password1 });
   if (!validatedFields.success) {
-    console.log(validatedFields.error);
     const errorMessages = validatedFields.error?.errors.map((e) => e.message).join('\n') || 'Input error';
     return ActionResponse.error(errorMessages).toJSON();
   }
@@ -42,7 +42,6 @@ export async function createUser(email: string, password1: string, password2: st
   const hashedPassword = await new Promise<string>((resolve, reject) => {
     bcrypt.hash(password1, 10, (err: any, hash: any) => (err ? reject(err) : resolve(hash)));
   });
-  console.log(hashedPassword);
   const user = await prisma.user.create({
     data: {
       email,
@@ -83,31 +82,38 @@ export async function requestNewToken(email: string) {
   return ActionResponse.success<User>('Token updated', { user }).toJSON();
 }
 
-export async function verifyToken(token: string) {
-  const user = await prisma.user.findFirst({
-    where: { validationToken: token },
-    select: { email: true, validationTokenExpiration: true },
+export async function verifyToken(email: string, token: string) {
+  const userFound = await prisma.user.findFirst({
+    where: { email },
+    select: { email: true, validationToken: true, validationTokenExpiration: true },
   });
-  if (!user) {
-    return ActionResponse.error('Token not found').toJSON();
+  if (!userFound) {
+    return ActionResponse.error('User not found').toJSON();
   }
-  if (!user.validationTokenExpiration || user.validationTokenExpiration < new Date()) {
+  if (userFound.validationToken !== token) {
+    return ActionResponse.error('Invalid token').toJSON();
+  }
+  if (!userFound.validationTokenExpiration || userFound.validationTokenExpiration < new Date()) {
     return ActionResponse.error('Token expired').toJSON();
   }
-  await prisma.user
+
+  const updatedUser = await prisma.user
     .update({
-      where: { email: user.email },
+      select: { email: true, verified: true },
+      where: { email: userFound.email },
       data: {
         verified: true,
         validationToken: null,
         validationTokenExpiration: null,
       },
     })
-    .catch(() => {
-      return ActionResponse.error('Verification failed').toJSON();
-    });
-  console.log('User verified:', user.email);
-  return ActionResponse.success<User>('Token verified', { user }).toJSON();
+    .catch(() => null);
+
+  if (!updatedUser) {
+    return ActionResponse.error('Verification failed').toJSON();
+  } else {
+    return ActionResponse.success<User>('Token verified', { user: updatedUser }).toJSON();
+  }
 }
 
 export async function login(email: string, password: string) {

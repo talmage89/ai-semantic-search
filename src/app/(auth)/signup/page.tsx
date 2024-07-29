@@ -5,7 +5,7 @@ import { CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createUser, login } from '~/lib';
+import { createUser, login } from '~/lib/actions';
 import './page.scss';
 
 type SignupForm = {

@@ -1,8 +1,11 @@
 'use client';
+
 import * as React from 'react';
 import useSWR from 'swr';
-import { Chat, ErrorMessage, Message, QuestionInput, Sidebar } from '../..';
-import './Home.scss';
+import { logout } from '~/lib/actions';
+import { Chat, QuestionInput, Sidebar } from './components';
+import { ErrorMessage, Message } from './types';
+import './page.scss';
 
 const fetcher = (...args: Parameters<typeof fetch>) => fetch(...args).then((res) => res.json());
 
@@ -15,12 +18,13 @@ export const Home = () => {
   const [conversation, setConversation] = React.useState<(Message | ErrorMessage)[]>([]);
   const [namespace, setNamespace] = React.useState('');
 
-  const { data, isLoading, error, mutate } = useSWR(indexInitialized ? '/api/stats' : null, (url) =>
-    fetcher(url, { method: 'POST' })
+  const { data, isLoading, error, mutate } = useSWR(
+    indexInitialized ? '/api/semantic/stats' : null,
+    (url: string | URL | Request) => fetcher(url, { method: 'POST' })
   );
 
   React.useEffect(() => {
-    fetch('/api/initialize', { method: 'POST' })
+    fetch('/api/semantic/initialize', { method: 'POST' })
       .catch(console.error)
       .finally(() => setIndexInitialized(true));
   }, []);
@@ -37,7 +41,7 @@ export const Home = () => {
     namespace && formData.append('namespace', namespace);
     docs.forEach((file) => formData.append('documents', file));
     setUploadingFiles(true);
-    fetch('/api/upload', { method: 'POST', body: formData })
+    fetch('/api/semantic/upload', { method: 'POST', body: formData })
       .then(async () => await handleAwaitIndexUpdate(namespace))
       .catch(console.error)
       .finally(() => setUploadingFiles(false));
@@ -75,7 +79,7 @@ export const Home = () => {
     // setConversation((prev) => [...prev, { text: question, timestamp: new Date(), direction: 'outgoing' } as Message]);
     addMessage({ text: question, timestamp: new Date(), direction: 'outgoing' });
     setSendingMessage(true);
-    fetch(`/api/query`, { method: 'post', body: JSON.stringify({ question, namespace }) })
+    fetch(`/api/semantic/query`, { method: 'post', body: JSON.stringify({ question, namespace }) })
       .then((res) => res.json())
       .then((json) => {
         json.error
@@ -88,7 +92,7 @@ export const Home = () => {
 
   function handleDeleteNamespace(namespace: string) {
     setDeleting(true);
-    fetch('/api/delete', { method: 'POST', body: JSON.stringify({ namespace }) })
+    fetch('/api/semantic/delete', { method: 'POST', body: JSON.stringify({ namespace }) })
       .then(() => handleAwaitIndexUpdate(namespace, false))
       .catch(console.error)
       .finally(() => setDeleting(false));
@@ -112,6 +116,7 @@ export const Home = () => {
             <h2 className="text-color-900">Semantic Search</h2>
             {/* <div className="text-size-xs text-weight-bold text-color-500">Version {process.env.npm_package_version}</div> */}
           </div>
+          <button onClick={() => logout()}>Log out</button>
         </div>
         <div className="Home__main__scroll">
           <div className="Home__main__container">
@@ -125,3 +130,5 @@ export const Home = () => {
     </div>
   );
 };
+
+export default Home;

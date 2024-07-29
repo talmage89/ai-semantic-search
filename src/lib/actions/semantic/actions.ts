@@ -1,12 +1,16 @@
+'use server';
+
 import { Pinecone, PineconeRecord } from '@pinecone-database/pinecone';
 import { OpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { loadQAStuffChain } from 'langchain/chains';
 import { Document } from 'langchain/document';
-import { indexSpecCloud, indexSpecRegion } from '~/config';
 import { randomUUID } from 'crypto';
+import { indexSpecCloud, indexSpecRegion, indexName, vectorDimension } from './config';
 
-export const getPineconeIndex = async (client: Pinecone, indexName: string, vectorDimension: number) => {
+const client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY || '' });
+
+export const getPineconeIndex = async () => {
   const existingIndexes = (await client.listIndexes()).indexes;
   const findIndex = () => existingIndexes?.find((index) => index.name === indexName);
   const createIndex = async () =>
@@ -25,24 +29,19 @@ export const getPineconeIndex = async (client: Pinecone, indexName: string, vect
   return findIndex() || (await createIndex());
 };
 
-export const getPineconeIndexStats = async (client: Pinecone, indexName: string) => {
+export const getPineconeIndexStats = async () => {
   const index = client.Index(indexName);
   const stats = await index.describeIndexStats();
   return stats;
 };
 
-export const deleteNamespace = async (client: Pinecone, indexName: string, namespace?: string) => {
+export const deleteNamespace = async (namespace?: string) => {
   const entireIndex = client.Index(indexName);
   const index = namespace ? entireIndex.namespace(namespace) : entireIndex;
   await index.deleteAll();
 };
 
-export const updatePineconeIndex = async (
-  client: Pinecone,
-  indexName: string,
-  unprocessedDocs: Document[],
-  namespace?: string
-) => {
+export const updatePineconeIndex = async (unprocessedDocs: Document[], namespace?: string) => {
   const entireIndex = client.Index(indexName);
   const index = namespace ? entireIndex.namespace(namespace) : entireIndex;
 
@@ -89,12 +88,7 @@ export const updatePineconeIndex = async (
   });
 };
 
-export const queryPineconeStoreAndLLM = async (
-  client: Pinecone,
-  indexName: string,
-  question: string,
-  namespace?: string
-) => {
+export const queryPineconeStoreAndLLM = async (question: string, namespace?: string) => {
   const entireIndex = client.Index(indexName);
   const index = namespace ? entireIndex.namespace(namespace) : entireIndex;
   const llm = new OpenAI({});

@@ -1,13 +1,10 @@
 import { TextLoader } from 'langchain/document_loaders/fs/text';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { NextRequest, NextResponse } from 'next/server';
-import { Pinecone } from '@pinecone-database/pinecone';
-import { indexName } from '~/config';
-import { updatePineconeIndex } from '../utils';
+import { updatePineconeIndex } from '~/lib/actions';
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
-  const client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY || '' });
 
   if (!formData.get('documents')) {
     return NextResponse.json('No documents found in request', { status: 400 });
@@ -24,7 +21,7 @@ export async function POST(req: NextRequest) {
   ).flat();
 
   try {
-    await updatePineconeIndex(client, indexName, processedDocs, (formData.get('namespace') as string) || undefined);
+    await updatePineconeIndex(processedDocs, (formData.get('namespace') as string) || undefined);
     return NextResponse.json({ data: 'Index updated' });
   } catch (e) {
     return NextResponse.json({ error: `Error updating Pinecone index: ${e}` }, { status: 500 });

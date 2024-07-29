@@ -1,11 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-
-import { omissions } from '~/lib/omissions';
+import { defaultOmission } from './lib/types';
 import { authConfig } from './auth.config';
 
-const prisma = new PrismaClient(omissions);
+const prisma = new PrismaClient(defaultOmission);
 
 export const {
   auth,

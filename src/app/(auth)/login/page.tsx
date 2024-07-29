@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { login } from '~/lib';
+import { login } from '~/lib/actions';
 import './page.scss';
 
 type LoginForm = {

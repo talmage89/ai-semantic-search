@@ -1,4 +1,4 @@
-export const omissions = {
+export const defaultOmission = {
     omit: {
       user: {
         password: true,

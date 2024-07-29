@@ -163,11 +163,11 @@ export const Sidebar = (props: SidebarProps) => {
           <input
             type="file"
             ref={directoryUploadRef}
-            webkitdirectory="true"
             onChange={(e) => {
               e.target.files && setDocs(Array.from(e.target.files));
               e.target.value = '';
             }}
+            {...{ webkitdirectory: '', mozdirectory: '', directory: '' }}
           />
           <input
             type="file"

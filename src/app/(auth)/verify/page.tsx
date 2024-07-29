@@ -3,34 +3,36 @@
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { ActionResponse, logout, requestNewToken, verifyToken } from '~/lib';
+import { User } from '@prisma/client';
+import { logout, requestNewToken, verifyToken } from '~/lib/actions';
+import { ActionResponse } from '~/lib/classes';
 import { Container } from '~/ui';
 import './page.scss';
 
 export default function Page() {
   const router = useRouter();
-  const session = useSession();
+  const { data: session, update } = useSession();
   const params = useSearchParams();
 
   React.useEffect(() => {
     const token = params.get('token');
-    token && handleVerifyToken(token);
-  }, [params]);
+    const email = session?.user?.email;
+    token && email && handleVerifyToken(email, token);
+  }, [params, session]);
 
-  const handleVerifyToken = async (token: string) => {
+  const handleVerifyToken = async (email: string, token: string) => {
     try {
-
-      const str = await verifyToken(token)
-      await ActionResponse.fromJSON(str).then(() => {
-        router.push('/');
-      })
+      const str = await verifyToken(email, token);
+      const res = await ActionResponse.fromJSON<User>(str);
+      await update({ verified: res.data.user.verified });
+      router.push('/');
     } catch (e: any) {
-      console.log(e.message);
-    } 
-  }
+      // console.log(e.message);
+    }
+  };
 
   const handleRequestNewLink = async () => {
-    const email = session.data?.user?.email;
+    const email = session?.user?.email;
     email && (await requestNewToken(email));
   };
 

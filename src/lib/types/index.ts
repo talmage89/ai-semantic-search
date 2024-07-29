@@ -1,1 +1,2 @@
-export * from './schema';
+export * from './LoginSchema/';
+export * from './PrismaOmissions/';
